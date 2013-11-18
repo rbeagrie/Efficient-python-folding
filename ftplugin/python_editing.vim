@@ -9,6 +9,7 @@ map <buffer> gd /def <C-R><C-W><CR>
 set foldmethod=expr
 set foldexpr=PythonFoldExpr(v:lnum)
 set foldtext=PythonFoldText()
+set foldnestmax=10
 
 map <buffer> f za
 map <buffer> F :call ToggleFold()<CR>
@@ -49,14 +50,24 @@ function! PythonFoldText()
 
 endfunction
 
+function! IndentLevel(lnum)
+    return indent(nextnonblank(a:lnum)) / &shiftwidth
+endfunction
+
 function! PythonFoldExpr(lnum)
 
     if indent( nextnonblank(a:lnum) ) == 0
         return 0
     endif
     
-    if getline(a:lnum-1) =~ '^\(class\|def\)\s'
-        return 1
+    let this_indent = IndentLevel(a:lnum)
+
+    if getline(a:lnum-1) =~ '^\s*\(class\|def\)\s'
+        return this_indent
+    endif
+
+    if getline(a:lnum+1) =~ '^\s*\(class\|def\)\s' && getline(a:lnum) =~ '^\s*$'
+        return this_indent
     endif
         
     if getline(a:lnum) =~ '^\s*$'
@@ -75,7 +86,7 @@ endfunction
 function! ReFold()
     set foldmethod=expr
     set foldexpr=0
-    set foldnestmax=1
+    set foldnestmax=10
     set foldmethod=expr
     set foldexpr=PythonFoldExpr(v:lnum)
     set foldtext=PythonFoldText()
