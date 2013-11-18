@@ -4,8 +4,6 @@ finish
 endif
 let b:did_ftplugin = 1
 
-map <buffer> gd /def <C-R><C-W><CR> 
-
 set foldmethod=expr
 set foldexpr=PythonFoldExpr(v:lnum)
 set foldtext=PythonFoldText()
